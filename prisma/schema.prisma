@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int          @id @default(autoincrement())
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  image            String
+  imagePublicId    String
+  first_Name       String
+  last_Name        String
+  middle_Name      String
+  email            String       @unique
+  password         String
+  gender           Gender
+  role             Status
+  // department       Department?  @relation(fields: [departmentId], references: [id])
+  // departmentId     Int?
+}
+
+enum Status {
+  Super_admin
+  Faculty_admin
+  Departmental_admin
+  Lecturer
+  Student
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model Department {
+  id              Int            @id @default(autoincrement())
+  name            String
+  faculty         Faculty        @relation(fields: [facultyId], references: [id])
+  facultyId       Int
+  lecturers       Lecturer[]
+  // users           User[]       // @relation("DepartmentUsers")
+  students        Student[]
+  courses         Course[]
+}
+
+model Faculty {
+  id           Int          @id @default(autoincrement())
+  name         String
+  departments  Department[]
+}
+
+model Lecturer {
+  id             Int          @id @default(autoincrement())
+  name           String
+  department     Department   @relation(fields: [departmentId], references: [id])
+  departmentId   Int
+  courses        Course[]   //  @relation("TeachingCourses")
+  timesTaught    Int?
+}
+
+model Course {
+  id               Int            @id @default(autoincrement())
+  code             String
+  title            String
+  unit             Int
+  semester         Semester
+  year             Year
+  department       Department     @relation(fields: [departmentId], references: [id])
+  departmentId     Int
+  lecturers        Lecturer?      @relation(fields: [lecturerId], references: [id])
+  lecturerId       Int?
+  students         Student?       @relation(fields: [studentId], references: [id])
+  studentId        Int?
+}
+
+enum Year {
+  First
+  Second
+  Third
+  Fourth
+  Fifth
+}
+
+model Student {
+  id             Int          @id @default(autoincrement())
+  name           String
+  email          String       @unique
+  age            Int
+  department     Department   @relation(fields: [departmentId], references: [id])
+  departmentId   Int
+  courses        Course[]   //  @relation("EnrolledCourses")
+  level          Int
+  semester       Semester
+}
+
+enum Semester {
+  First
+  Second
+}
+
+// model Chat {
+//   id             Int        @id @default(autoincrement())
+//   message        String
+//   sender         User       @relation(fields: [senderId], references: [id])
+//   senderId       Int
+//   receiver       User       @relation(fields: [receiverId], references: [id])
+//   receiverId     Int
+// }
