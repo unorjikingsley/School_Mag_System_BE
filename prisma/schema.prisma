@@ -26,14 +26,16 @@ model User {
   password         String
   gender           Gender
   role             Status
-  // department       Department?  @relation(fields: [departmentId], references: [id])
-  // departmentId     Int?
+  student          Student?
+  lecturer         Lecturer?
+  departmental_admin H_O_D?
+  dean             Dean?
 }
 
 enum Status {
   Super_admin
-  Faculty_admin
-  Departmental_admin
+  Dean
+  Head_Of_Department
   Lecturer
   Student
 }
@@ -48,26 +50,49 @@ model Department {
   id              Int            @id @default(autoincrement())
   name            String
   faculty         Faculty        @relation(fields: [facultyId], references: [id])
-  facultyId       Int
+  facultyId       Int            @unique
+  h_o_ds          H_O_D[]
   lecturers       Lecturer[]
-  // users           User[]       // @relation("DepartmentUsers")
   students        Student[]
   courses         Course[]
+}
+
+model H_O_D {
+  id             Int          @id @default(autoincrement())
+  userId         Int          @unique // This field references the User's id
+  user           User         @relation(fields: [userId], references: [id])
+  departmentId   Int          @unique
+  department     Department   @relation(fields: [departmentId], references: [id])
 }
 
 model Faculty {
   id           Int          @id @default(autoincrement())
   name         String
   departments  Department[]
+  dean         Dean[]
 }
 
 model Lecturer {
   id             Int          @id @default(autoincrement())
-  name           String
+  userId         Int          @unique // This field references the User's id
+  user           User         @relation(fields: [userId], references: [id])
   department     Department   @relation(fields: [departmentId], references: [id])
   departmentId   Int
-  courses        Course[]   //  @relation("TeachingCourses")
   timesTaught    Int?
+  
+  // courses        Course[]   //  @relation("TeachingCourses")  //implicit
+
+  lecturers      LecturerCourses[]
+}
+
+model LecturerCourses {
+  lecturer Lecturer @relation(fields: [lecturerId], references: [id])
+  lecturerId Int @unique
+
+  course Course @relation(fields: [courseId], references: [id])
+  courseId Int @unique
+
+  @@id([lecturerId, courseId])
 }
 
 model Course {
@@ -79,10 +104,17 @@ model Course {
   year             Year
   department       Department     @relation(fields: [departmentId], references: [id])
   departmentId     Int
-  lecturers        Lecturer?      @relation(fields: [lecturerId], references: [id])
-  lecturerId       Int?
-  students         Student?       @relation(fields: [studentId], references: [id])
-  studentId        Int?
+
+  // lecturers        Lecturer?      @relation(fields: [lecturerId], references: [id])
+  // lecturerId       Int?
+  // students         Student?       @relation(fields: [studentId], references: [id])
+  // studentId        Int?
+
+  // students         Student[]     //implicit
+  // lecturers        Lecturer[]    //implicit
+
+  student             StudentCourses[]  //explicit
+  lecturer            LecturerCourses[]  //explicit
 }
 
 enum Year {
@@ -95,19 +127,39 @@ enum Year {
 
 model Student {
   id             Int          @id @default(autoincrement())
-  name           String
-  email          String       @unique
-  age            Int
+  userId         Int          @unique // This field references the User's id
+  user           User         @relation(fields: [userId], references: [id])
   department     Department   @relation(fields: [departmentId], references: [id])
   departmentId   Int
-  courses        Course[]   //  @relation("EnrolledCourses")
   level          Int
   semester       Semester
+  
+  // courses        Course[]   //  @relation("EnrolledCourses") //implicit
+
+  courses        StudentCourses[]  // explicit
+}
+
+model StudentCourses {
+  student Student @relation(fields: [studentId], references: [id])
+  studentId Int @unique
+
+  course Course @relation(fields: [courseId], references: [id])
+  courseId Int @unique
+
+  @@id([studentId, courseId])
 }
 
 enum Semester {
   First
   Second
+}
+
+model Dean {
+  id             Int          @id @default(autoincrement())
+  userId         Int          @unique // This field references the User's id
+  user           User         @relation(fields: [userId], references: [id])
+  facultyId      Int          @unique
+  faculty        Faculty      @relation(fields: [facultyId], references: [id])
 }
 
 // model Chat {
