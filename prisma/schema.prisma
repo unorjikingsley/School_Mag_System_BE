@@ -59,7 +59,7 @@ model Department {
 
 model H_O_D {
   id             Int          @id @default(autoincrement())
-  userId         Int          @unique // This field references the User's id
+  userId         Int          @unique
   user           User         @relation(fields: [userId], references: [id])
   departmentId   Int          @unique
   department     Department   @relation(fields: [departmentId], references: [id])
@@ -74,14 +74,11 @@ model Faculty {
 
 model Lecturer {
   id             Int          @id @default(autoincrement())
-  userId         Int          @unique // This field references the User's id
+  userId         Int          @unique
   user           User         @relation(fields: [userId], references: [id])
   department     Department   @relation(fields: [departmentId], references: [id])
   departmentId   Int
   timesTaught    Int?
-  
-  // courses        Course[]   //  @relation("TeachingCourses")  //implicit
-
   lecturers      LecturerCourses[]
 }
 
@@ -104,17 +101,8 @@ model Course {
   year             Year
   department       Department     @relation(fields: [departmentId], references: [id])
   departmentId     Int
-
-  // lecturers        Lecturer?      @relation(fields: [lecturerId], references: [id])
-  // lecturerId       Int?
-  // students         Student?       @relation(fields: [studentId], references: [id])
-  // studentId        Int?
-
-  // students         Student[]     //implicit
-  // lecturers        Lecturer[]    //implicit
-
-  student             StudentCourses[]  //explicit
-  lecturer            LecturerCourses[]  //explicit
+  student          StudentCourses[]
+  lecturer         LecturerCourses[]
 }
 
 enum Year {
@@ -133,9 +121,6 @@ model Student {
   departmentId   Int
   level          Int
   semester       Semester
-  
-  // courses        Course[]   //  @relation("EnrolledCourses") //implicit
-
   courses        StudentCourses[]  // explicit
 }
 
@@ -161,12 +146,3 @@ model Dean {
   facultyId      Int          @unique
   faculty        Faculty      @relation(fields: [facultyId], references: [id])
 }
-
-// model Chat {
-//   id             Int        @id @default(autoincrement())
-//   message        String
-//   sender         User       @relation(fields: [senderId], references: [id])
-//   senderId       Int
-//   receiver       User       @relation(fields: [receiverId], references: [id])
-//   receiverId     Int
-// }
