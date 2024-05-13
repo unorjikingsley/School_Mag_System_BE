@@ -51,6 +51,7 @@ model Department {
   name            String
   faculty         Faculty        @relation(fields: [facultyId], references: [id])
   facultyId       Int            @unique
+  departmentNo    Int
   h_o_ds          H_O_D[]
   lecturers       Lecturer[]
   students        Student[]
@@ -68,6 +69,7 @@ model H_O_D {
 model Faculty {
   id           Int          @id @default(autoincrement())
   name         String
+  facultyNo    Int
   departments  Department[]
   dean         Dean[]
 }
@@ -120,6 +122,7 @@ model Student {
   department     Department   @relation(fields: [departmentId], references: [id])
   departmentId   Int
   level          Int
+  matricNo      Int
   semester       Semester
   courses        StudentCourses[]  // explicit
 }
