@@ -10,9 +10,6 @@ export const registerUser = async (req, res) => {
   try {
     const user = { ...req.body }
 
-    // console.log('Request body:', req.body)
-
-    // Default image values
     const defaultImage =
       'https://res.cloudinary.com/dt3psf5ta/image/upload/v1715502383/xnxcbxzehmirgi2iwty3.png'
     const defaultImagePublicId = 'xnxcbxzehmirgi2iwty3'
@@ -69,7 +66,7 @@ export const registerUser = async (req, res) => {
 
     res.status(StatusCodes.CREATED).json({ msg: newUser })
   } catch (error) {
-    // console.log('error:', error)
+    console.log('error:', error)
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ error: 'Internal Server Error' })

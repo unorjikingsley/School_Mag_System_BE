@@ -1,11 +1,17 @@
-import { Router } from 'express'
-import { updateUser, assignDeanRole } from '../controllers/userController.js'
+import { Router } from 'express';
+import { updateUser, getUser, getAllUsers } from '../controllers/userController.js';
 
-import upload from '../middleware/multerMiddleware.js'
+import upload from '../middleware/multerMiddleware.js';
 
-const router = Router()
+const router = Router();
 
-router.post('/update-user', upload.single('image'), updateUser)
-router.post('/login', assignDeanRole)
+router
+  .route('/').get(getAllUsers)
 
-export default router
+router
+  .route('/:id')
+  .get(getUser)
+  .patch(upload.single('image'), updateUser);
+// router.post('/assign-dean', assignDeanRole);
+
+export default router;
