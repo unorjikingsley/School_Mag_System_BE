@@ -27,3 +27,7 @@ export const createFaculty = async (req, res) => {
       .json({ error: 'Internal Server Error' })
   }
 }
+
+export const getAllFaculty = async (req, res) => {
+  console.log(req)
+}
