@@ -1,0 +1,151 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int          @id @default(autoincrement())
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  image            String
+  imagePublicId    String
+  first_Name       String
+  last_Name        String
+  middle_Name      String
+  email            String       @unique
+  password         String
+  gender           Gender
+  role             Status
+  student          Student?
+  lecturer         Lecturer?
+  departmental_admin H_O_D?
+  dean             Dean?
+}
+
+enum Status {
+  Super_admin
+  Dean
+  Head_Of_Department
+  Lecturer
+  Student
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model Department {
+  id              Int            @id @default(autoincrement())
+  name            String
+  faculty         Faculty        @relation(fields: [facultyId], references: [id])
+  facultyId       Int            @unique
+  departmentNo    Int
+  h_o_ds          H_O_D[]
+  lecturers       Lecturer[]
+  students        Student[]
+  courses         Course[]
+}
+
+model H_O_D {
+  id             Int          @id @default(autoincrement())
+  userId         Int          @unique
+  user           User         @relation(fields: [userId], references: [id])
+  departmentId   Int          @unique
+  department     Department   @relation(fields: [departmentId], references: [id])
+}
+
+model Faculty {
+  id           Int          @id @default(autoincrement())
+  name         String
+  facultyNo    Int
+  departments  Department[]
+  dean         Dean[]
+}
+
+model Lecturer {
+  id             Int          @id @default(autoincrement())
+  userId         Int          @unique
+  user           User         @relation(fields: [userId], references: [id])
+  department     Department   @relation(fields: [departmentId], references: [id])
+  departmentId   Int
+  timesTaught    Int?
+  lecturers      LecturerCourses[]
+}
+
+model LecturerCourses {
+  lecturer Lecturer @relation(fields: [lecturerId], references: [id])
+  lecturerId Int @unique
+
+  course Course @relation(fields: [courseId], references: [id])
+  courseId Int @unique
+
+  @@id([lecturerId, courseId])
+}
+
+model Course {
+  id               Int            @id @default(autoincrement())
+  code             String
+  title            String
+  unit             Int
+  semester         Semester
+  year             Year
+  department       Department     @relation(fields: [departmentId], references: [id])
+  departmentId     Int
+  student          StudentCourses[]
+  lecturer         LecturerCourses[]
+}
+
+enum Year {
+  First
+  Second
+  Third
+  Fourth
+  Fifth
+}
+
+model Student {
+  id             Int          @id @default(autoincrement())
+  userId         Int          @unique // This field references the User's id
+  user           User         @relation(fields: [userId], references: [id])
+  department     Department   @relation(fields: [departmentId], references: [id])
+  departmentId   Int
+  level          Int
+  matricNo      Int
+  semester       Semester
+  courses        StudentCourses[]  // explicit
+}
+
+model StudentCourses {
+  student Student @relation(fields: [studentId], references: [id])
+  studentId Int @unique
+
+  course Course @relation(fields: [courseId], references: [id])
+  courseId Int @unique
+
+  @@id([studentId, courseId])
+}
+
+enum Semester {
+  First
+  Second
+}
+
+model Dean {
+  id             Int          @id @default(autoincrement())
+  userId         Int          @unique // This field references the User's id
+  user           User         @relation(fields: [userId], references: [id])
+  facultyId      Int          @unique
+  faculty        Faculty      @relation(fields: [facultyId], references: [id])
+}
